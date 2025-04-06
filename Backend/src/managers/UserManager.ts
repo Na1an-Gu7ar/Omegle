@@ -20,12 +20,15 @@ export class UserManager {
     addUser(socket: Socket, name: string) {
         this.users.push({ socket, name })
         this.queue.push(socket.id)
+        socket.send("lobby")
         this.clearQueue()
         this.initHandlers(socket)
     }
 
     removeUser(socketId: string) {
-        this.users = this.users.filter((user) => user.socket.id === socketId)
+        const user = this.users.find((user) => user.socket.id === socketId)
+
+        this.users = this.users.filter((user) => user.socket.id !== socketId)
         this.queue = this.queue.filter((id) => id === socketId)
     }
 
