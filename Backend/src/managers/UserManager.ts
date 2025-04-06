@@ -42,6 +42,7 @@ export class UserManager {
         }
 
         const room = this.roomManager.createRoom(user1, user2)
+        this.clearQueue()
         // this.queue = this.queue.filter((id) => this.users.some((user) => user.socket.id === id))
     }
 
