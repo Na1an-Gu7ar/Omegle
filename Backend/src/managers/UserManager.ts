@@ -33,13 +33,19 @@ export class UserManager {
     }
 
     clearQueue() {
+        console.log("inside clearQueue");
+        console.log(this.queue.length);
+        
         if(this.queue.length < 2) {
             return
         }
 
+        console.log("creating room");
+
         const user1 = this.users.find((user) => user.socket.id === this.queue.pop())
         const user2 = this.users.find((user) => user.socket.id === this.queue.pop())
 
+        console.log(user1, user2);
         if(!user1 || !user2) {
             return
         }
@@ -51,10 +57,12 @@ export class UserManager {
 
     initHandlers(socket: Socket) {
         socket.on("offer", ({sdp, roomId}: {sdp: string, roomId: string}) => {
+            console.log("offer received");
             this.roomManager.onOffer(roomId, sdp)
         })
         
         socket.on("answer", ({sdp, roomId}: {sdp: string, roomId: string}) => {
+            console.log("answer received");
             this.roomManager.onAnswer(roomId, sdp)
         })
     }

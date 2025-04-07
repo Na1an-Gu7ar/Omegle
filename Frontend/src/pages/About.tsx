@@ -8,7 +8,7 @@ const About = () => {
     const [searchParams, setSearchParams] = useSearchParams()
     const name = searchParams.get('name') || 'Guest'
     const [socket, setSocket] = useState<null | Socket>(null)
-    const [lobby, setLobby] = useState(false)
+    const [lobby, setLobby] = useState(true)
 
     useEffect(() => {
         const socket = io(URL)
