@@ -27,8 +27,10 @@ class UserManager {
             return;
         }
         console.log("creating room");
-        const user1 = this.users.find((user) => user.socket.id === this.queue.pop());
-        const user2 = this.users.find((user) => user.socket.id === this.queue.pop());
+        const id1 = this.queue.pop();
+        const id2 = this.queue.pop();
+        const user1 = this.users.find((user) => user.socket.id === id1);
+        const user2 = this.users.find((user) => user.socket.id === id2);
         console.log(user1, user2);
         if (!user1 || !user2) {
             return;
