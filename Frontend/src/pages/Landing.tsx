@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react"
-import { Link } from "react-router-dom"
+import About from "./Room"
 
 const Home = () => {
     const [name, setName] = useState('')
@@ -33,13 +33,19 @@ const Home = () => {
         }
     }, [videoRef])
 
-    return (
-        <div>
-            <video autoPlay ref={videoRef}></video>
-            <input type="text" onChange={(e) => setName(e.target.value)}/>
-            <Link to={`/about?name=${name}`}>About</Link>
-        </div>
-    )
+    if(!joined) {
+        return (
+            <div>
+                <video autoPlay ref={videoRef}></video>
+                <input type="text" onChange={(e) => setName(e.target.value)}/>
+                <button onClick={() => {
+                    setJoined(true)
+                }}>About</button>
+            </div>
+        )
+    }
+
+    return <About name={name} localAudioTrack={localAudioTrack} localVideoTrack={localVideoTrack} />
 }
 
 export default Home
