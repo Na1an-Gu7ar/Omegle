@@ -40,7 +40,15 @@ const About = ({
                 pc.addTrack(localAudioTrack)
             }
 
-            pc.onicecandidate = async () => {
+            // pc.onicecandidate = async (e) => {
+            //     if(e.candidate){
+            //         pc.addIceCandidate(e.candidate)
+            //     }
+            // }
+            
+            pc.onnegotiationneeded = async () => {
+                alert("Negotiation needed")
+                
                 const sdp = await pc.createOffer()
                 socket.emit("offer", {
                     sdp,
@@ -49,11 +57,11 @@ const About = ({
             }
         })
 
-        socket.on("offer", async ({roomId, offer}) => {
+        socket.on("offer", async ({roomId, sdp: remoteSdp}) => {
             setLobby(false)
             
             const pc = new RTCPeerConnection()
-            pc.setRemoteDescription({sdp: offer, type: "offer"})
+            pc.setRemoteDescription(remoteSdp)
 
             const sdp = await pc.createAnswer()
 
@@ -86,13 +94,10 @@ const About = ({
             })
         })
 
-        socket.on("answer", ({roomId, answer}) => {
+        socket.on("answer", ({roomId, sdp: remoteSdp}) => {
             setLobby(false)
             setSendingPc((pc) => {
-                pc?.setRemoteDescription({
-                    sdp: answer, 
-                    type: "answer"
-                })
+                pc?.setRemoteDescription(remoteSdp)
                 return pc
             })
         })
