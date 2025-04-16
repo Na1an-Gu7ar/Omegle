@@ -61,12 +61,17 @@ export class UserManager {
     initHandlers(socket: Socket) {
         socket.on("offer", ({sdp, roomId}: {sdp: string, roomId: string}) => {
             console.log("offer received");
-            this.roomManager.onOffer(roomId, sdp)
+            this.roomManager.onOffer(roomId, sdp, socket.id)
         })
         
         socket.on("answer", ({sdp, roomId}: {sdp: string, roomId: string}) => {
             console.log("answer received");
-            this.roomManager.onAnswer(roomId, sdp)
+            this.roomManager.onAnswer(roomId, sdp, socket.id)
+        })
+
+        socket.on("add-ice-candidate", ({roomId, candidate, type}) => {
+            console.log("ice candidate received");
+            this.roomManager.onIceCandidtaes(roomId, socket.id, candidate, type)
         })
     }
 }
