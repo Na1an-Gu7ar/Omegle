@@ -1,11 +1,11 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-var http_1 = require("http");
-var express_1 = require("express");
+var http = require("http");
+var express = require('express');
 var socket_io_1 = require("socket.io");
 var UserManager_1 = require("./managers/UserManager");
-var app = (0, express_1.default)();
-var server = http_1.default.createServer(app);
+var app = express();
+var server = http.createServer(app);
 var io = new socket_io_1.Server(server, {
     cors: {
         origin: '*',

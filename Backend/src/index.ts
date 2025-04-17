@@ -1,6 +1,6 @@
-import http from 'http'
+import * as http from 'http'
 import { Socket } from 'socket.io';
-import express from 'express'
+const express = require('express');
 import { Server } from 'socket.io';
 import { UserManager } from './managers/UserManager';
 

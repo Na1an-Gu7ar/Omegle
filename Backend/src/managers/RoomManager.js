@@ -13,21 +13,32 @@ var RoomManager = /** @class */ (function () {
             roomId: roomId,
         });
     };
-    RoomManager.prototype.onOffer = function (roomId, sdp) {
-        var _a;
-        var user2 = (_a = this.rooms.get(roomId)) === null || _a === void 0 ? void 0 : _a.user2;
-        user2 === null || user2 === void 0 ? void 0 : user2.socket.emit("offer", {
+    RoomManager.prototype.onOffer = function (roomId, sdp, senderSocketid) {
+        var room = this.rooms.get(roomId);
+        if (!room)
+            return;
+        var receivingUser = room.user1.socket.id == senderSocketid ? room.user2 : room.user1;
+        receivingUser === null || receivingUser === void 0 ? void 0 : receivingUser.socket.emit("offer", {
             sdp: sdp,
             roomId: roomId,
         });
     };
-    RoomManager.prototype.onAnswer = function (roomId, sdp) {
-        var _a;
-        var user1 = (_a = this.rooms.get(roomId)) === null || _a === void 0 ? void 0 : _a.user1;
-        user1 === null || user1 === void 0 ? void 0 : user1.socket.emit("answer", {
+    RoomManager.prototype.onAnswer = function (roomId, sdp, senderSocketid) {
+        var room = this.rooms.get(roomId);
+        if (!room)
+            return;
+        var receivingUser = room.user1.socket.id == senderSocketid ? room.user2 : room.user1;
+        receivingUser === null || receivingUser === void 0 ? void 0 : receivingUser.socket.emit("answer", {
             sdp: sdp,
             roomId: roomId,
         });
+    };
+    RoomManager.prototype.onIceCandidtaes = function (roomId, senderSocketid, candidate, type) {
+        var room = this.rooms.get(roomId);
+        if (!room)
+            return;
+        var receivingUser = room.user1.socket.id == senderSocketid ? room.user2 : room.user1;
+        receivingUser.socket.emit("add-ice-candidate", ({ candidate: candidate, type: type }));
     };
     RoomManager.prototype.generateRoomId = function () {
         return GLOBAL_ROOM_ID++;

@@ -44,12 +44,17 @@ var UserManager = /** @class */ (function () {
         socket.on("offer", function (_a) {
             var sdp = _a.sdp, roomId = _a.roomId;
             console.log("offer received");
-            _this.roomManager.onOffer(roomId, sdp);
+            _this.roomManager.onOffer(roomId, sdp, socket.id);
         });
         socket.on("answer", function (_a) {
             var sdp = _a.sdp, roomId = _a.roomId;
             console.log("answer received");
-            _this.roomManager.onAnswer(roomId, sdp);
+            _this.roomManager.onAnswer(roomId, sdp, socket.id);
+        });
+        socket.on("add-ice-candidate", function (_a) {
+            var roomId = _a.roomId, candidate = _a.candidate, type = _a.type;
+            console.log("ice candidate received");
+            _this.roomManager.onIceCandidtaes(roomId, socket.id, candidate, type);
         });
     };
     return UserManager;
