@@ -66,23 +66,23 @@ const About = ({
 
         socket.on("offer", async ({ roomId, sdp: remoteSdp }) => {
             setLobby(false)
-            
+
             const pc = new RTCPeerConnection()
             pc.setRemoteDescription(remoteSdp)
             const sdp = await pc.createAnswer()
-            
+
             // @ts-ignore
             pc.setLocalDescription(sdp)
             const stream = new MediaStream()
             if (remoteVideoRef.current) {
                 remoteVideoRef.current.srcObject = stream
             }
-            
+
             setRemoteMediaStream(stream)
-            
+
             // trickel ICE
             setReceivingPc(pc)
-            
+
             pc.onicecandidate = async (e) => {
                 console.log("on ice candidate on receiving side")
                 if (e.candidate) {
@@ -94,24 +94,36 @@ const About = ({
                 }
             }
 
-            pc.ontrack = (({ track, type }) => {
-                if (type == 'audio') {
-                    // setRemoteAudioTrack(track)
-                    // @ts-ignore
-                    remoteVideoRef.current.srcObject.addTrack(track)
-                } else {
-                    // setRemoteVideoTrack(track)
-                    // @ts-ignore
-                    remoteVideoRef.current.srcObject.addTrack(track)
-                }
-                // @ts-ignore
-                remoteVideoRef.current.play()
-            })
+            // pc.ontrack = ({ track, type }) => {
+            // if (type == 'audio') {
+            //     // setRemoteAudioTrack(track)
+            // } else {
+            //     // setRemoteVideoTrack(track)
+            // }
+            // }
 
             socket.emit("answer", {
                 roomId,
                 sdp: sdp,
             })
+
+            setTimeout(() => {
+                const track1 = pc.getTransceivers()[0].receiver.track
+                const track2 = pc.getTransceivers()[1].receiver.track
+                if (track1.kind == "video") {
+                    setRemoteAudioTrack(track2)
+                    setRemoteVideoTrack(track1)
+                } else {
+                    setRemoteAudioTrack(track1)
+                    setRemoteVideoTrack(track2)
+                }
+                // @ts-ignore
+                remoteVideoRef.current.srcObject.addTrack(track1)
+                // @ts-ignore
+                remoteVideoRef.current.srcObject.addTrack(track2)
+                // @ts-ignore
+                remoteVideoRef.current.play()
+            }, 5000)
         })
 
         socket.on("answer", ({ roomId, sdp: remoteSdp }) => {
@@ -135,7 +147,7 @@ const About = ({
                     pc?.addIceCandidate(candidate)
                     return pc
                 })
-            } else{
+            } else {
                 setSendingPc((pc) => {
                     pc?.addIceCandidate(candidate)
                     return pc
