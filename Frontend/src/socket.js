@@ -1,8 +1,5 @@
 import { io } from "socket.io-client";
 
-const socket = io(process.env.BACKEND_URL, {
-    transports: ["websocket", "polling"],
-    withCredentials: true,
-});
+const socket = io("http://localhost:5000");
 
 export default socket;

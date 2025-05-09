@@ -5,22 +5,15 @@ const cors = require("cors");
 require("dotenv").config();
 
 const app = express();
-app.use(cors({
-  origin: process.env.FRONTEND_URL, // In production, restrict this
-  methods: ["GET", "POST"],
-  credentials: true,
-}));
+app.use(cors());
 
 const server = http.createServer(app);
 const io = new Server(server, {
   cors: {
-    origin: process.env.FRONTEND_URL, // In production, restrict this
+    origin: "*",
     methods: ["GET", "POST"],
-    credentials: true,
   },
 });
-
-const rooms = {}; // roomId => [socket.id]
 
 io.on("connection", (socket) => {
   console.log("User connected:", socket.id);
@@ -30,15 +23,27 @@ io.on("connection", (socket) => {
     socket.userId = userId;
     socket.roomId = roomId;
 
-    console.log(`${userId} joined room: ${roomId}`);
+    const room = io.sockets.adapter.rooms.get(roomId) || new Set();
+    const otherUsers = Array.from(room).filter(id => id !== socket.id);
+    const initiator = otherUsers.length === 0;
 
-    // Notify others in the room (except this socket)
-    socket.to(roomId).emit("user-joined", userId);
+    console.log(`${userId} joined room: ${roomId} as ${initiator ? "initiator" : "responder"}`);
+    socket.emit("room-joined", { initiator });
+
+    for (const otherSocketId of otherUsers) {
+      const otherSocket = io.sockets.sockets.get(otherSocketId);
+      if (otherSocket && otherSocket.userId) {
+        socket.emit("user-joined", otherSocket.userId);
+        otherSocket.emit("user-joined", userId);
+      }
+    }
   });
 
   socket.on("send-signal", ({ to, from, signal }) => {
-    // Relay the signal to the intended recipient
-    io.to(getSocketIdByUserId(to)).emit("receive-signal", { from, signal });
+    const toSocketId = getSocketIdByUserId(to);
+    if (toSocketId) {
+      io.to(toSocketId).emit("receive-signal", { from, signal });
+    }
   });
 
   socket.on("leave-room", (roomId, userId) => {
